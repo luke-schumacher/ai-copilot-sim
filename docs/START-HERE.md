@@ -1,9 +1,9 @@
 # Start here: Group 1, first week
 
-Goal of the week: everyone has run the mock chain on their laptop, the squads are set,
-and we know what has to be ordered or clarified. **The rig will not be here before
-mid-November, probably later.** No task this week needs hardware, and neither do most of the
-next six weeks: README section 3b lists what to do for each task while you wait.
+Goal of the week: everyone has run the mock chain on their laptop, the squads are set, and we know
+what has to be ordered or clarified. **The rig will not be here before mid-November, probably later.**
+No task this week needs hardware, and neither do most of the next six weeks: README section 3b lists
+what to do for each task while you wait.
 
 ## Wednesday 7 October (kickoff day)
 
@@ -19,39 +19,41 @@ next six weeks: README section 3b lists what to do for each task while you wait.
 
 Each Master leads a squad of three.
 
-| squad | members | focus |
+| squad | members | tasks |
 |---|---|---|
-| A: Capture and data | M1 (lead), B1, B2 | rig and setup guide, the three sims, ROS 2, lap files, labelled sessions |
-| B: Timing, models and AI | M2 (lead), B3, B4 | clocks, the latency model, cameras, the AI machine, heart rate |
-
-## Thursday to Friday
-
-5. Read the README, sections 1 to 3 and 6. Each person writes down three things in the guide
-   that you do not understand yet, as comments on an issue "Guide questions".
-6. **Squad B:** measure the clock offset between two of your laptops (README, phase 5), once
-   with `chrony` or `w32tm`. Write down how you measured and what you got, with the uncertainty.
-   You are inventing the method S4 will use on the real machines.
-7. **Squad A:** install ROS 2 Jazzy (a container is fine), publish the mock stream on a topic,
-   record it with `ros2 bag record`, replay it. Does it keep the timestamps?
-8. **Squad B:** run `python -m simlab.latency`, then change one stage in the code and explain the
-   change in the output. Where do the 20 ms come from in "slow processing"?
-9. Open a pull request with your notes in `notes/week1-<your name>.md`. First merged pull request.
-
-## Before the first weekly meeting
-
-10. Squad A: list, for each of the three sims, what you expect to be able to read and at
-    what rate, as a hypothesis. S2 and S3 will test it.
-11. Everyone: write down five questions for Group 2 about the lap format
-    ([INTERFACE.md](INTERFACE.md)). Group 2's squad B is drafting the contract with you.
-12. Luke needs from you: the list of accounts and licences the rig needs (rFactor 2, Assetto
-    Corsa and iRacing are in the proposal) and who will own them.
+| 1: Capture and data | Master 1 (lead), Bachelor 1, Bachelor 2 | rig and setup guide, readers for the three simulators, ROS 2 data flow, data pipeline, lap files, part of the dashboard |
+| 2: Timing, models and AI | Master 2 (lead), Bachelor 3, Bachelor 4 | clocks, setups and the delay model, local AI models, cameras, raw inputs and heart rate, part of the dashboard |
 
 ## How the weeks run
 
 Read [WORKFLOW.md](WORKFLOW.md) today: set up your group's fork, a team meeting among yourselves
 every week, a pull request to me every Friday, a call with me every second week.
 
+## Thursday to Friday
+
+5. Read the README, sections 1 to 3b. Each person writes down three things in the guide that are
+   unclear, in `notes/week-01.md`.
+6. **Squad 2, task 4:** measure the clock offset between two of your laptops (README, phase 5), once
+   with `chrony` or `w32tm`. Write down how you measured and what you got, with the uncertainty.
+   You are inventing the method you will use on the real machines.
+7. **Squad 1, task 5:** install ROS 2 Jazzy (a container is fine), publish the mock stream on a
+   topic, record it with `ros2 bag record`, replay it. Does it keep the timestamps?
+8. **Squad 1, task 6:** sketch the data pipeline on paper: the stages, and what a stored session
+   contains (samples, who drove, which simulator, clock offset, software versions).
+9. **Squad 2, task 8:** run `python -m simlab.latency`, change one stage in the code and explain
+   the change in the output.
+10. **Squad 2, task 10:** install a model server on a laptop (llama.cpp, Ollama or vLLM), run one
+    small model, and write down how long an answer takes and how much memory it uses.
+11. Open a pull request with your notes in `notes/week-01.md`. First merged pull request.
+
+## Before the first weekly meeting
+
+12. Squad 1: for each of the three simulators, write down what you expect to read and at what rate,
+    as a hypothesis. Task 3 will test it.
+13. Everyone: five questions for Group 2 about the lap format ([INTERFACE.md](INTERFACE.md)). Group 2's
+    squad 2 is drafting the contract with you.
+14. Luke needs from you: the list of accounts and licences the rig needs and who will own them.
+
 ## If you are stuck
 
-Ask in the group channel before spending more than 30 minutes. Hardware questions and anything
-about data go to Luke.
+Ask in the group channel before spending more than 30 minutes. Hardware questions go to Luke.

@@ -3,7 +3,7 @@
 Code and setup guide for **Group 1**, WS 2026/27, FH Aachen. The rig arrives
 prebuilt; your job is to turn it into a measured, documented data source for the AI
 copilot. This README is the setup guide. **Keep it true**: when you find a step that is
-wrong or missing, fix it in a pull request. Task S1 is finished when someone who has
+wrong or missing, fix it in a pull request. Task 2 (rig bring-up) is finished when someone who has
 never touched the rig can follow it from a fresh machine.
 
 Start with [docs/START-HERE.md](docs/START-HERE.md) (your first week). Tasks, squads
@@ -23,19 +23,19 @@ to do while you wait, and what happens on 11 December if it has still not arrive
 | machine / part | what it is | role |
 |---|---|---|
 | **Sim PC** | Bernax GT Track: built-in PC with software installed, 49″ curved monitor | runs the sims; the telemetry source |
-| Wheel base, wheel, pedals | Simagic Alpha EVO base, X-330 wheel, P1000 dual pedals | driver input; later read raw (S10) |
+| Wheel base, wheel, pedals | Simagic Alpha EVO base, X-330 wheel, P1000 dual pedals | driver input; later read raw (task 11) |
 | Seat shaker, FIA-approved seat, frame | part of the set | not read by software, but part of the rig |
 | **AI machine** | ASUS Ascent GX10: NVIDIA GB10, 128 GB unified memory, 1 TB SSD, Linux (DGX OS, Ubuntu 24.04, arm64) | local model server; runs ROS 2 |
 | **Evaluation PC** | ASUS ExpertCenter PN54: Ryzen AI 7 350, 32 GB, Windows 11, two 2.5 GbE ports, Bluetooth 5.4 | recording, evaluation, network experiments, BLE for the heart-rate strap |
 | Switch | Netgear GS308E, 8-port | one observable network for all three machines |
 | Second monitor | Dell 27″ QHD | telemetry and model output |
-| Cameras | 2 × Logitech MX Brio (4K) | driver and scene video (S8) |
+| Cameras | 2 × Logitech MX Brio (4K) | driver and scene video (task 11) |
 | UPS | APC Back-UPS BX950MI | clean shutdown; protects the rig |
-| Chest straps | 2 × Polar H10 | heart rate, RR intervals, ECG (S10) |
+| Chest straps | 2 × Polar H10 | heart rate, RR intervals, ECG (task 11) |
 | Software | rFactor 2 (Steam), Assetto Corsa Ultimate Edition (Steam), iRacing (24-month membership) | the three sims |
 
 Source: the proposal "Lehrdemonstrator KI-Co-Pilot im Rennsimulator" and its supplier
-offers. **Details not known until delivery** (fill in during S1):
+offers. **Details not known until delivery** (fill in during task 2):
 
 | unknown | where to look | answer |
 |---|---|---|
@@ -58,11 +58,11 @@ offers. **Details not known until delivery** (fill in during S1):
   `192.168.50.0/24`: sim PC `.10`, evaluation PC `.20`, AI machine `.30`.
 - The evaluation PC has two Ethernet ports, so it can also sit **inline** between the
   sim PC and the switch to disturb traffic (delay, loss). Whether to do that, or to
-  inject the faults in software inside your bridge, is a decision for S5 and S7. Write down
+  inject the faults in software inside your bridge, is a decision for tasks 5 and 8. Write down
   the decision and why.
 - **Clocks:** three machines, three clocks. Decide who is the time reference (suggestion:
   the AI machine, running `chrony` as a local NTP server), measure the offset and drift
-  (S4), and record both timestamps in every sample (`source_t`, `receive_t`, see
+  (task 4), and record both timestamps in every sample (`source_t`, `receive_t`, see
   [simlab/records.py](simlab/records.py)). Never overwrite one with the other.
 
 | machine | address | OS | role |
@@ -87,7 +87,7 @@ Everything here runs on your laptops.
 2. Install **ROS 2 Jazzy** (see phase 6) in a container or an Ubuntu 24.04 machine and
    publish the mock stream on a topic.
 3. Measure the clock offset between two of your laptops with `chrony` or `w32tm`
-   (phase 5). You are developing the method for S4 now, so the real measurement is quick.
+   (phase 5). You are developing the method for task 4 now, so the real measurement is quick.
 4. Read the sim telemetry interfaces (phases 3.1 to 3.3). Do not write against them yet:
    without the sims running you cannot tell whether you read them right.
 5. Prepare the checklists in section 14 as files you will tick on the day.
@@ -99,22 +99,23 @@ task has a part that needs no rig:
 
 | task | do now, without the rig | changes when the rig arrives |
 |---|---|---|
-| S2, S3 readers | write the reader interface; unit-test it on **canned buffers** (byte dumps that look like the sim's memory); read the interface documentation for each sim | run it against the real sim; measure the real update rate |
-| S4 clocks | develop and test the measurement method on two laptops | repeat on the three real machines |
-| S5 ROS 2 | mock stream, message definition, bag record and replay | swap the mock for the real recorder |
-| S6 lap files | converter from recordings (mock first) that passes the validator | convert real sessions; drive the labelled sessions |
-| S7 latency model | build it with assumed values; change them and see what moves | calibrate it against the measurements from S4 |
-| S8 cameras | capture tool on a laptop webcam | the two MX Brio cameras |
-| S9 AI machine | run a small model server on a laptop; measure latency at three prompt sizes | move it to the AI machine |
-| S10 stage 2 | parsers for the heart-rate and raw-input data, tested on canned packets | the real straps and devices |
-| S1 rig bring-up | read this guide end to end; prepare the checklists; list what is unknown | the actual bring-up |
+| 2 rig bring-up | read this guide end to end; prepare the checklists; list what is unknown | the actual bring-up |
+| 3 readers | write the reader interface; unit-test it on **canned buffers** (byte dumps that look like the sim's memory); read the interface documentation for each sim | run it against the real sim; measure the real update rate |
+| 4 clocks | develop and test the measurement method on two laptops | repeat on the three real machines |
+| 5 ROS 2 | mock stream, message definition, bag record and replay | swap the mock for the real recorder |
+| 6 data pipeline | build the whole path on mock data: store, check, cut into laps, replay | feed it real recordings |
+| 7 lap files | converter from stored sessions (mock first) that passes the validator | convert real sessions; drive the labelled sessions |
+| 8 setups and delay model | build the model with assumed values; change them and see what moves; plan the setups to measure | measure the real setups; calibrate the model against them |
+| 9 dashboard | build it on replayed mock data on your own laptop | run it on the evaluation PC with live data |
+| 10 local AI | run small models on a laptop; build the comparison test and the measurements | repeat on the AI machine; choose the model |
+| 11 cameras, raw inputs, heart rate | capture tool on a laptop webcam; parsers tested on canned packets | the two cameras, the real straps and devices |
 
 **Where a real sim helps even before the rig:** rFactor 2 and Assetto Corsa run on an ordinary
-Windows PC. If the licences are available (Luke clarifies who buys them), the readers in S2 and S3
+Windows PC. If the licences are available (Luke clarifies who buys them), the readers in task 3
 can be tried against the real sims on a student's own PC, with a gamepad or a wheel.
 
 **Decision point, Friday 11 December.** If the rig has not been delivered by then, the labelled
-sessions for S6 (and therefore Group 2's transfer experiment) are driven on any Windows PC with
+sessions for task 7 (and therefore Group 2's transfer experiment) are driven on any Windows PC with
 the sims, using a gamepad or your own wheels. They are lower fidelity than the rig, and the report
 must say so. If the rig arrives, they are driven on it.
 
@@ -133,7 +134,7 @@ must say so. If the rig arrives, they are driven on it.
 
 ## 5. Phase 2: sim PC base setup
 
-1. Make a **backup image** of the vendor's installation before you change anything (S1
+1. Make a **backup image** of the vendor's installation before you change anything (task 2
    deliverable). Note the tool and where the image lives.
 2. Windows Update: finish updates once, then set "active hours" to cover your sessions and
    pause updates during a recording week. A reboot in the middle of a session ruins data.
@@ -165,7 +166,7 @@ rFactor 2 gets its telemetry from a shared-memory **plugin**.
 5. Drive. The plugin mirrors the game's internal state into shared-memory buffers (telemetry,
    scoring and others). Read them from a separate process; the plugin repository documents the
    structures.
-6. S2 builds the recorder on top of this.
+6. Task 3 builds the recorder on top of this.
 
 ### 3.2 Assetto Corsa
 
@@ -182,7 +183,7 @@ a header that states the data version and the update rate (usually 60 Hz) and a 
 Python library `pyirsdk` reads it (`pip install pyirsdk`). iRacing must be running with a car on
 track. Telemetry is only available while you drive.
 
-### Sim comparison table (S3 fills this in)
+### Sim comparison table (task 3 fills this in)
 
 | | rFactor 2 | Assetto Corsa | iRacing |
 |---|---|---|---|
@@ -224,9 +225,26 @@ track. Telemetry is only available while you drive.
    w32tm /resync
    w32tm /query /status
    ```
-4. Do not trust "synchronised". S4 **measures** the offset and drift between the machines, for
+4. Do not trust "synchronised". Task 4 **measures** the offset and drift between the machines, for
    an hour, and publishes the numbers with intervals. That error budget is what the timestamps in
    every recording are worth.
+
+## 8b. Different setups to compare (task 8)
+
+The delay a recording carries depends on the setup. Measure at least these and write the results in
+one table:
+
+| setup | what runs where |
+|---|---|
+| A | everything on the sim PC (reader, recorder, dashboard) |
+| B | reader on the sim PC; recorder and dashboard on the evaluation PC, over the switch |
+| C | reader on the sim PC; model requests go to the AI machine as well |
+| D | B or C with the evaluation PC inline, adding delay and loss on purpose (or the same done in software) |
+
+For each setup and at two sampling rates: median, 95th and 99th percentile of the delay, jitter, and the
+share of samples lost. These numbers calibrate the SimPy model (`simlab/latency.py`) and are the value
+ranges Group 2 uses to test timing faults. Until the rig is here, plan the measurement script and run it
+between two laptops.
 
 ## 9. Phase 6: ROS 2
 
@@ -234,7 +252,7 @@ track. Telemetry is only available while you drive.
   platform on Ubuntu 24.04 for both amd64 and **arm64**, so the AI machine (DGX OS is Ubuntu 24.04
   on arm64) runs it natively. On Windows, Jazzy's Tier 1 platform is **Windows 10**, not Windows
   11; whether it works well on the delivered sim PC is something to **test**, not assume.
-- **Two options for the sim PC side. Decide in S5, write down why:**
+- **Two options for the sim PC side. Decide in task 5, write down why:**
   - **A. Bridge, no ROS 2 on the sim PC.** A small Python program reads the sim's shared memory
     and sends each sample, with its source timestamp, over the network (UDP or similar) to a ROS 2
     node on Linux that publishes it. Simple, and keeps the sim PC lean.
@@ -247,16 +265,34 @@ track. Telemetry is only available while you drive.
 
 ## 10. Phase 7: recording, lap files, labelled sessions
 
-1. Recorders (S2, S3) write [simlab/records.py](simlab/records.py) samples: `source_t`,
+1. Recorders (task 3) write [simlab/records.py](simlab/records.py) samples: `source_t`,
    `receive_t`, values.
-2. The converter (S6) turns a recording into a lap file in the layout of
+2. The converter (task 7) turns a recording into a lap file in the layout of
    [docs/INTERFACE.md](docs/INTERFACE.md). **Done** when
    `python -m claimcheck.validate lapfile.vbo` (from the lab repository) reports no error, and
    the checker loads it.
-3. Labelled sessions: Group 2's scenario catalogue (T1) contains **driving cards**, one-line
+3. Labelled sessions: Group 2's scenario catalogue (Group 2's task 2) contains **driving cards**, one-line
    instructions such as "brake 10 m earlier at T3". Drive them, record, and store with each
    session: the card, driver, car, track, sim, date, rig settings. At least 10 sessions of 6+
    laps by the end of January.
+
+## 10b. Phase 7b: the data pipeline and the dashboard (tasks 6 and 9)
+
+**Data pipeline.** One command takes a raw recording to a checked, stored session:
+
+1. **Store:** one folder per session with the samples, and a `meta.json` holding simulator, car, track,
+   driver, scenario card, clock offset and software versions.
+2. **Check:** gaps longer than two sample periods, jumps, impossible values (negative speed, throttle
+   above 100 %), duplicates, and time running backwards. `simlab.records.check_stamps` is the start.
+   Every problem is written into a quality report; nothing is repaired silently.
+3. **Cut into laps** and keep the lap boundaries in the stored session.
+4. **Replay** a stored session at its original timing, so that the dashboard and the AI work can use
+   recorded sessions exactly like live ones.
+
+**Dashboard on the evaluation PC** (shown on the second monitor). It reads a live stream or a replay and
+shows: speed, throttle and brake traces; lap times; the delay of the data chain and the share of lost
+samples; and the output of the AI model. Choose the simplest tool that updates at least five times a
+second, write down why you chose it, and keep it running without a keyboard.
 
 ## 11. Phase 8: the AI machine
 
@@ -266,10 +302,15 @@ track. Telemetry is only available while you drive.
 3. Install ROS 2 Jazzy (phase 6) and `chrony` (phase 5).
 4. Pick a model server (for example llama.cpp, vLLM or Ollama; compare briefly, note why) and a
    small open model. Serve it on the network.
-5. S9 measures the latency from the sim PC for three prompt sizes and writes it down. The question
-   the copilot will ask later is how long an answer takes, so measure the whole round trip, not just
-   inference.
-6. It is **separate from the sim PC on purpose**: load on the AI machine must not slow the sim.
+5. **Choosing a model (task 10).** Pick at least three open models of different sizes that fit in the
+   machine's memory. Give each the same two jobs: (a) turn a one-sentence claim into a structured test
+   (Group 2's claim test set is the benchmark once it exists; until then use 20 sentences you write
+   yourselves, in English and German), and (b) summarise a lap from numbers. For each model measure the
+   time to the first word, words per second, memory use, and correctness on a fixed test set, repeating
+   every run five times. Put the results in one table and recommend one model, with the reason.
+6. **Cost of a request.** Measure the latency from the sim PC for three prompt sizes. The question the
+   copilot will ask later is how long an answer takes, so measure the whole round trip, not just inference.
+7. It is **separate from the sim PC on purpose**: load on the AI machine must not slow the sim.
 
 ## 12. Phase 9: cameras
 
@@ -296,14 +337,14 @@ Only after phases 3 to 7 work.
 
 ## 14. Checklists
 
-**Rig is "done" (end of S1):**
+**Rig is "done" (end of task 2):**
 - [ ] UPS test shutdown passed
 - [ ] emergency procedure on a card at the rig
 - [ ] backup image of the vendor installation exists
 - [ ] rFactor 2, Assetto Corsa and iRacing each: 10 laps driven, telemetry read back
 - [ ] real update rate of each measured and written in the comparison table
 - [ ] all three machines on the switch, addresses in the table, `ping` both ways
-- [ ] clock reference running; offset measured (S4)
+- [ ] clock reference running; offset measured (task 4)
 - [ ] a person who has not touched the rig has followed this README from a fresh start
 
 **Before every recording session:**
@@ -336,7 +377,7 @@ guide, the Polar BLE SDK repository (`polarofficial/polar-ble-sdk`), `bleakheart
 
 - `simlab/records.py`: the sample format with two clocks; `check_stamps` finds bad timestamps
 - `simlab/mock_source.py`: a synthetic session as a stream, before the rig exists
-- `simlab/latency.py`: SimPy skeleton of the latency chain (S7 starts here)
+- `simlab/latency.py`: SimPy skeleton of the latency chain (task 8 starts here)
 - `tests/`: run `uv run pytest`
 
 How we work (the weekly rhythm is in [docs/WORKFLOW.md](docs/WORKFLOW.md)): `main` here is protected and changes only through your weekly pull request to Luke; in your group's fork you work on one branch per task (`s5-ros2-bridge`), merge by pull request

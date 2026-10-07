@@ -2,14 +2,14 @@
 
 Group 1 delivers **lap files** and, for live use, a **ROS 2 topic**. Group 2 owns the contract
 (`docs/LAP-FORMAT.md` in `ai-copilot-lab`) and the validator
-(`python -m claimcheck.validate file.vbo`). **Draft: agreed by 13 November** between your S5 and
-S6 and their T8.
+(`python -m claimcheck.validate file.vbo`). **Draft: agreed by 13 November** between your tasks 5 and 7
+and their task 7.
 
 ## Lap files
 
 The layout of a Racelogic VBOX `.vbo` file, with the channel names and units in the lab
 repository's LAP-FORMAT.md: time, position in minutes (longitude positive west), `velocity kmh`,
-`throttle_pct`, `brake_bar`, `steering_deg`, `accel_lat_g`, and so on. Your converter (S6) writes
+`throttle_pct`, `brake_bar`, `steering_deg`, `accel_lat_g`, and so on. Your converter (task 7) writes
 them. A file is acceptable when the validator reports no error and the checker loads it.
 
 Things you will have to decide with Group 2:
@@ -43,5 +43,5 @@ latitude and longitude); the sampling rate; what a missing field looks like.
 
 - Two clocks, always: `source_t` and `receive_t`. Never merge them.
 - `source_t` must strictly increase; `receive_t` must not go backwards.
-- State the measured clock offset (S4) next to every recording.
+- State the measured clock offset (task 4) next to every recording.
 - A late or lost sample is data, not something to repair silently.

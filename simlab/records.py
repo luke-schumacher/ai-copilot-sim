@@ -3,7 +3,7 @@ One telemetry sample, with two clocks.
 
 `source_t` is when the simulator (or sensor) produced the value, in seconds on the
 source's clock. `receive_t` is when the recorder got it, in seconds on the recorder's
-clock. They are different clocks until S4 shows how far apart they are; never merge
+clock. They are different clocks until task 4 shows how far apart they are; never merge
 them into one number. Honest timestamps matter more than clean ones.
 
 The recording format is JSON Lines: one object per line, human-readable, easy to diff.

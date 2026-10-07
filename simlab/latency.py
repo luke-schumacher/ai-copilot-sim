@@ -3,7 +3,7 @@ A SimPy skeleton of the chain: sim -> acquisition -> transport -> processing.
 
 Each sample is produced at `rate_hz`, spends time in three stages, and may be lost in
 transport. Stage delay is `base_s` plus an exponential tail with mean `jitter_s`. That
-distribution is a placeholder: S7 replaces it with whatever S4's measurements show.
+distribution is a placeholder: task 8 replaces it with whatever task 4's measurements show.
 Processing is a single server, so if it is slower than the sampling period, samples queue
 and latency grows: the effect the model exists to show.
 
