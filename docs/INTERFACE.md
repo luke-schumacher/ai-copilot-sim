@@ -3,7 +3,7 @@
 Group 1 delivers **lap files** and, for live use, a **ROS 2 topic**. Group 2 owns the contract
 (`docs/LAP-FORMAT.md` in `ai-copilot-lab`) and the validator
 (`python -m claimcheck.validate file.vbo`). **Draft: agreed by 13 November** between your tasks 5 and 7
-and their task 7.
+and their task 6.
 
 ## Lap files
 

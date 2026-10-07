@@ -1,11 +1,11 @@
 # AI Copilot for Racesimulation: the simulator rig (Group 1)
 
-This is the repository and setup guide for **Group 1** of the student project, winter semester 2026/27,
-FH Aachen. The rig arrives prebuilt. Your job is to turn it into a **measured, documented source of racing
+This is the repository and setup guide for **Group 1**, the eight Bachelor students, of the student project,
+winter semester 2026/27, FH Aachen. The rig arrives prebuilt. Your job is to turn it into a **measured, documented source of racing
 data** for the AI copilot, and to build what sits around it: the data flow, the pipeline, a dashboard, and
 a local AI model.
 
-**Keep this README true.** When you find a step that is wrong or missing, fix it in a pull request. Task 2
+**Keep this README true.** When you find a step that is wrong or missing, fix it in a merge request. Task 2
 (rig bring-up) is finished when someone who has never touched the rig can follow this guide from a fresh
 machine.
 
@@ -14,6 +14,7 @@ Where to go next:
 - **First week:** [docs/START-HERE.md](docs/START-HERE.md)
 - **Tasks, squads and hours:** [docs/TASKS.md](docs/TASKS.md)
 - **What you hand to Group 2:** [docs/INTERFACE.md](docs/INTERFACE.md)
+- **The hardware, with specifications:** [docs/HARDWARE.md](docs/HARDWARE.md)
 - **How we work:** [docs/WORKFLOW.md](docs/WORKFLOW.md)
 - **The rule about data:** [docs/DATA-RULE.md](docs/DATA-RULE.md)
 
@@ -51,7 +52,7 @@ racing game  ->  reader  ->  ROS 2  ->  pipeline (store, check, replay)  ->  lap
 7. **Lap files and labelled sessions.** Convert sessions for Group 2's checker; drive 10 labelled test sessions.
 8. **Different setups and the delay model.** Measure delay in at least three setups; build a simulation of it.
 9. **Interface tests and dashboard.** Test the interfaces between the parts and the data reporting (the test code is in the repositories), then build a dashboard on the evaluation PC that pulls the data and evaluates it. This dashboard is what you present at the end.
-10. **Local AI: choosing and testing models.** Compare at least three local models; pick one.
+10. **Local AI: setting up and testing models.** Set up the AI machine, compare at least three local models on speed and memory, check them on ten example sentences and pick one. Group 2 runs the full accuracy study on 100 claims.
 11. **Cameras, raw inputs and heart rate.** A later stage: record and align further sources.
 12. **Meetings, report and final talk.**
 
@@ -104,20 +105,20 @@ racing game  ->  reader  ->  ROS 2  ->  pipeline (store, check, replay)  ->  lap
 
 **Tools**
 - **uv** creates the Python environment; **pytest** runs the tests; **Docker** runs software in a container.
-- **Fork, branch, pull request:** your own copy of a repository; a line of work in it; a request to merge it
-  back. See [docs/WORKFLOW.md](docs/WORKFLOW.md).
+- **Fork, branch, merge request:** your own copy of a repository; a line of work in it; a request to merge it
+  back (GitHub calls it a pull request). See [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
 ---
 
 ## 1. What you are setting up
 
-This table lists everything in the rig, what it is, and what it does in our project. The prices and offers are in the proposal the hardware was bought from; here we only need to know what each part is for.
+This table lists everything in the rig, what it is, and what it does in our project. The specifications are in [docs/HARDWARE.md](docs/HARDWARE.md); here we only need to know what each part is for.
 
 | machine / part | what it is | role |
 |---|---|---|
-| **Sim PC** | Bernax GT Track: built-in PC with software installed, 49″ curved monitor | runs the sims; the telemetry source |
-| Wheel base, wheel, pedals | Simagic Alpha EVO base, X-330 wheel, P1000 dual pedals | driver input; later read raw (task 11) |
-| Seat shaker, FIA-approved seat, frame | part of the set | not read by software, but part of the rig |
+| **Sim PC** | Bernax GT simulator with a fully installed game PC (RTX 5070, 32 GB RAM, Ryzen 7 or Ultra 7, 1 TB SSD), 49″ curved monitor, 144 Hz or more | runs the sims; the telemetry source |
+| Wheel base, wheel, pedals | Simagic Alpha base, DTM-style wheel (GT NEO or GTC, to be confirmed at delivery), P1000 two-pedal set | driver input; later read raw (task 11) |
+| Seat shaker, seat, frame, monitor stand | LTEC GT seat, mounted seat shaker | not read by software, but part of the rig |
 | **AI machine** | ASUS Ascent GX10: NVIDIA GB10, 128 GB unified memory, 1 TB SSD, Linux (DGX OS, Ubuntu 24.04, arm64) | local model server; runs ROS 2 |
 | **Evaluation PC** | ASUS ExpertCenter PN54: Ryzen AI 7 350, 32 GB, Windows 11, two 2.5 GbE ports, Bluetooth 5.4 | recording, evaluation, network experiments, BLE for the heart-rate strap |
 | Switch | Netgear GS308E, 8-port | one observable network for all three machines |
@@ -127,16 +128,16 @@ This table lists everything in the rig, what it is, and what it does in our proj
 | Chest straps | 2 × Polar H10 | heart rate, RR intervals, ECG (task 11) |
 | Software | rFactor 2 (Steam), Assetto Corsa Ultimate Edition (Steam), iRacing (24-month membership) | the three sims |
 
-Source: the proposal "Lehrdemonstrator KI-Co-Pilot im Rennsimulator" and its supplier
-offers. **Details not known until delivery** (fill in during task 2):
+Source: [docs/HARDWARE.md](docs/HARDWARE.md) and the supplier's quotation. **Details not known until delivery**
+(fill in during task 2):
 
 | unknown | where to look | answer |
 |---|---|---|
-| Sim PC: Windows version, CPU, GPU, RAM, free disk | System settings, `msinfo32` | |
+| Sim PC: Windows version, exact CPU, free disk (GPU RTX 5070 and 32 GB RAM are in the quotation) | System settings, `msinfo32` | |
 | Does the sim PC have Bluetooth? | Device Manager | |
 | What is already installed on the sim PC? | Programs list; ask the vendor | |
 | Which accounts own the Steam and iRacing licences? | Luke | |
-| Wheel base peak torque setting and firmware | Simagic software | |
+| Which wheel arrives (GT NEO or GTC), wheel base peak torque setting and firmware | Simagic software | |
 
 ## 2. The plan for the network and clocks
 
@@ -170,7 +171,7 @@ Fill in this table once the addresses are fixed. Everyone who touches the networ
 
 Everything here runs on your laptops.
 
-1. One person per group forks this repository (public, no invitation needed) and adds the group as collaborators; everyone clones the fork, and also clones `ai-copilot-lab` next to it. Then (this is real work, not waiting: see 3b):
+1. One person per group forks this repository on the FH Aachen GitLab (https://git.fh-aachen.de/ls9392e/ai-copilot-sim; sign in with your FH account, no invitation needed) and invites the group to the fork (Manage, Members); everyone clones the fork, and also clones `ai-copilot-lab` (https://git.fh-aachen.de/ls9392e/ai-copilot-lab) next to it. Then (this is real work, not waiting: see 3b):
    ```bash
    git clone <this repo> && git clone <ai-copilot-lab>
    cd ai-copilot-sim
@@ -511,6 +512,6 @@ guide, the Polar BLE SDK repository (`polarofficial/polar-ble-sdk`), `bleakheart
 - `simlab/latency.py`: SimPy skeleton of the latency chain (task 8 starts here)
 - `tests/`: run `uv run pytest`
 
-How we work (the weekly rhythm is in [docs/WORKFLOW.md](docs/WORKFLOW.md)): `main` here is protected and changes only through your weekly pull request to Luke; in your group's fork you work on one branch per task (`s5-ros2-bridge`), merge by pull request
+How we work (the weekly rhythm is in [docs/WORKFLOW.md](docs/WORKFLOW.md)): `main` here is protected and changes only through your weekly merge request to Luke; in your group's fork you work on one branch per task (`ros2-bridge`), merge by merge request
 with one teammate's review and green tests; **done** means merged, tests pass, one command
 reproduces the result, and this README or a docstring says how to run it.
