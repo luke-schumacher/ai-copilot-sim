@@ -1,8 +1,8 @@
 # The hardware
 
 What the simulator rig is made of, what each part does in our project, and what you should check
-when it arrives. The setup guide is the [README](../README.md). This is the same list as the hardware sheet
-you received as a PDF.
+when it arrives. The setup guide is the README of the repository `ai-copilot-sim`. The PDF hardware sheet
+has the same content as this page.
 
 **Status:** planned. **Delivery date not confirmed**: mid-November at the very earliest, and probably later.
 Until then you work on laptops with the mock stream (README, section 3b). On Friday 11 December we decide

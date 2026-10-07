@@ -17,13 +17,13 @@ what to do for each task while you wait.
 
 ## Squads
 
-Two squads of four. Each squad names a lead, who chairs the weekly meeting and makes sure the weekly note is written.
-The hours per person are in TASKS.md.
+Two squads, four and three students. Each squad names a lead, who chairs the weekly meeting and makes sure the weekly
+note is written. The hours per person are in TASKS.md; the labels there (Master 1 and so on) are agreed in the first meeting.
 
 | squad | members | tasks |
 |---|---|---|
-| 1: Rig squad | Bachelor 1 (lead), Bachelor 2, Bachelor 3, Bachelor 4 | rig and setup guide, readers for the three games and the game comparison, cameras, raw inputs and heart rate, driving the labelled sessions, part of the clocks and the setups |
-| 2: Data squad | Bachelor 5 (lead), Bachelor 6, Bachelor 7, Bachelor 8 | clocks, ROS 2 data flow, data pipeline, lap files, the delay model, interface tests and dashboard, local AI models |
+| 1: Rig squad | Bachelor 1 (lead), Bachelor 2, Bachelor 3, Bachelor 4 | rig and setup guide, readers for the three games and the game comparison, cameras, raw inputs and heart rate, driving the labelled sessions, part of the clocks, the setups and the interface tests |
+| 2: Data squad | Master 1 (lead), Bachelor 5, Bachelor 6 | ROS 2 data flow, data pipeline, lap files, the dashboard, local AI models, part of the clocks, the delay model and the interface tests |
 
 ## How the weeks run
 

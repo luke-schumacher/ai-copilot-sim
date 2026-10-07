@@ -1,6 +1,6 @@
 # AI Copilot for Racesimulation: the simulator rig (Group 1)
 
-This is the repository and setup guide for **Group 1**, the eight Bachelor students, of the student project,
+This is the repository and setup guide for **Group 1**, seven students (one Master and six Bachelors), of the student project,
 winter semester 2026/27, FH Aachen. The rig arrives prebuilt. Your job is to turn it into a **measured, documented source of racing
 data** for the AI copilot, and to build what sits around it: the data flow, the pipeline, a dashboard, and
 a local AI model.
