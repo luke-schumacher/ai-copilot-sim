@@ -36,7 +36,7 @@ Your chain, from left to right:
 racing game  ->  reader  ->  ROS 2  ->  pipeline (store, check, replay)  ->  lap files for Group 2
 (3 games)       (task 3)    (task 5)         (task 6)                          (task 7)
                                 |
-                                +-->  dashboard on the second PC (task 9)  and  local AI model (task 10)
+                                +-->  interface tests and dashboard on the second PC (task 9)  and  local AI model (task 10)
 ```
 
 ## Your twelve tasks in plain words
@@ -50,7 +50,7 @@ racing game  ->  reader  ->  ROS 2  ->  pipeline (store, check, replay)  ->  lap
 6. **Data pipeline.** Store every session in one layout, check its quality, cut it into laps, replay it.
 7. **Lap files and labelled sessions.** Convert sessions for Group 2's checker; drive 10 labelled test sessions.
 8. **Different setups and the delay model.** Measure delay in at least three setups; build a simulation of it.
-9. **Dashboard on the evaluation PC.** Show live and replayed sessions on the second monitor.
+9. **Interface tests and dashboard.** Test the interfaces between the parts and the data reporting (the test code is in the repositories), then build a dashboard on the evaluation PC that pulls the data and evaluates it. This dashboard is what you present at the end.
 10. **Local AI: choosing and testing models.** Compare at least three local models; pick one.
 11. **Cameras, raw inputs and heart rate.** A later stage: record and align further sources.
 12. **Meetings, report and final talk.**
@@ -67,6 +67,7 @@ racing game  ->  reader  ->  ROS 2  ->  pipeline (store, check, replay)  ->  lap
   samples that never arrive.
 - **Clock offset and drift:** how far two machines' clocks disagree, and how that grows over time.
 - **Lap file:** a text file in the layout of a GPS data logger (`.vbo`) that Group 2's checker reads.
+- **Interface (German: Schnittstelle):** the place where one part hands data to the next, for example game to reader, reader to ROS 2, or lap file to Group 2's checker.
 - **Pipeline:** the steps that take a raw recording to a checked, stored, replayable session.
 - **Dashboard:** a live display of data on a screen.
 
@@ -200,7 +201,7 @@ task has a part that needs no rig:
 | 6 data pipeline | build the whole path on mock data: store, check, cut into laps, replay | feed it real recordings |
 | 7 lap files | converter from stored sessions (mock first) that passes the validator | convert real sessions; drive the labelled sessions |
 | 8 setups and delay model | build the model with assumed values; change them and see what moves; plan the setups to measure | measure the real setups; calibrate the model against them |
-| 9 dashboard | build it on replayed mock data on your own laptop | run it on the evaluation PC with live data |
+| 9 interface tests and dashboard | extend the interface tests; build the dashboard on replayed mock data on your own laptop | run it on the evaluation PC with live data |
 | 10 local AI | run small models on a laptop; build the comparison test and the measurements | repeat on the AI machine; choose the model |
 | 11 cameras, raw inputs, heart rate | capture tool on a laptop webcam; parsers tested on canned packets | the two cameras, the real straps and devices |
 
@@ -411,10 +412,18 @@ between two laptops.
 4. **Replay** a stored session at its original timing, so that the dashboard and the AI work can use
    recorded sessions exactly like live ones.
 
-**Dashboard on the evaluation PC** (shown on the second monitor). It reads a live stream or a replay and
-shows: speed, throttle and brake traces; lap times; the delay of the data chain and the share of lost
-samples; and the output of the AI model. Choose the simplest tool that updates at least five times a
-second, write down why you chose it, and keep it running without a keyboard.
+**Interface tests (task 9).** An interface is the place where one part hands data to the next: game to
+reader, reader to ROS 2, ROS 2 to pipeline, pipeline to lap file, lap file to Group 2's checker. Test each one.
+The code to start from is already here and in the lab repository: `tests/test_records.py` (timestamps),
+`simlab/records.py` (`check_stamps`), and in the lab repository `claimcheck.validate` (lap files),
+`tests/test_validate.py` and `tests/test_web.py` (the reporting). Run them, read them, extend them.
+
+**Dashboard on the evaluation PC** (shown on the second monitor). **It pulls the data and evaluates it**: it
+reads stored sessions or a live stream, runs Group 2's checker on them, and shows the checker's answers next
+to the known answers for the labelled sessions. It also shows: speed, throttle and brake traces; lap times;
+the delay of the data chain and the share of lost samples; and the output of the AI model. Choose the
+simplest tool that updates at least five times a second, write down why you chose it, and keep it running
+without a keyboard. **This dashboard is what you present at the end.**
 
 ## 11. Phase 8: the AI machine
 

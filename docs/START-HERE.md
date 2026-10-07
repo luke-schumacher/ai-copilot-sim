@@ -21,8 +21,8 @@ Each Master leads a squad of three.
 
 | squad | members | tasks |
 |---|---|---|
-| 1: Capture and data | Master 1 (lead), Bachelor 1, Bachelor 2 | rig and setup guide, readers for the three simulators, ROS 2 data flow, data pipeline, lap files, part of the dashboard |
-| 2: Timing, models and AI | Master 2 (lead), Bachelor 3, Bachelor 4 | clocks, setups and the delay model, local AI models, cameras, raw inputs and heart rate, part of the dashboard |
+| 1: Capture and data | Master 1 (lead), Bachelor 1, Bachelor 2 | rig and setup guide, readers for the three games, ROS 2 data flow, data pipeline, lap files, part of the interface tests and dashboard |
+| 2: Timing, models and AI | Master 2 (lead), Bachelor 3, Bachelor 4 | clocks, setups and the delay model, local AI models, cameras, raw inputs and heart rate, part of the interface tests and dashboard |
 
 ## How the weeks run
 
