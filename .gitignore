@@ -1,0 +1,21 @@
+# Recordings, video, logs and bags never go into git. Keep them in a shared folder.
+*.jsonl
+*.vbo
+*.mp4
+*.avi
+*.bag
+*.db3
+*.mcap
+rosbag2_*/
+data/
+recordings/
+
+# Credentials and accounts
+.env
+
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
