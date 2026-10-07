@@ -1,24 +1,116 @@
-# AI Copilot for Racesimulation: the simulator rig
+# AI Copilot for Racesimulation: the simulator rig (Group 1)
 
-Code and setup guide for **Group 1**, WS 2026/27, FH Aachen. The rig arrives
-prebuilt; your job is to turn it into a measured, documented data source for the AI
-copilot. This README is the setup guide. **Keep it true**: when you find a step that is
-wrong or missing, fix it in a pull request. Task 2 (rig bring-up) is finished when someone who has
-never touched the rig can follow it from a fresh machine.
+This is the repository and setup guide for **Group 1** of the student project, winter semester 2026/27,
+FH Aachen. The rig arrives prebuilt. Your job is to turn it into a **measured, documented source of racing
+data** for the AI copilot, and to build what sits around it: the data flow, the pipeline, a dashboard, and
+a local AI model.
 
-Start with [docs/START-HERE.md](docs/START-HERE.md) (your first week). Tasks, squads
-and hours: [docs/TASKS.md](docs/TASKS.md). What you hand to Group 2:
-[docs/INTERFACE.md](docs/INTERFACE.md). The rule about data:
-[docs/DATA-RULE.md](docs/DATA-RULE.md).
+**Keep this README true.** When you find a step that is wrong or missing, fix it in a pull request. Task 2
+(rig bring-up) is finished when someone who has never touched the rig can follow this guide from a fresh
+machine.
 
-**The rig is not here yet.** Delivery is mid-November at the very earliest, and probably
-later. That is why most of this guide, and most of your work until December, is built and
-tested **without** the rig, against the mock stream in this repository. Section 3b says what
-to do while you wait, and what happens on 11 December if it has still not arrived.
+Where to go next:
+
+- **First week:** [docs/START-HERE.md](docs/START-HERE.md)
+- **Tasks, squads and hours:** [docs/TASKS.md](docs/TASKS.md)
+- **What you hand to Group 2:** [docs/INTERFACE.md](docs/INTERFACE.md)
+- **How we work:** [docs/WORKFLOW.md](docs/WORKFLOW.md)
+- **The rule about data:** [docs/DATA-RULE.md](docs/DATA-RULE.md)
+
+**The rig is not here yet.** Delivery is mid-November at the very earliest, and probably later. That is why
+most of this guide, and most of your work until December, is built and tested **without** the rig, against
+the mock stream in this repository. Section 3b says what to do while you wait, and what happens on 11
+December if the rig has still not arrived.
+
+## The project in plain words
+
+A race engineer has a belief about a driver, for example "he loses time in corner 2 because he brakes
+early". A **claim checker** (the other group's repository) tests that belief against lap data and answers
+Supported, Contradicted or Can't tell yet. Group 2 finds out how often it is right. To know whether their
+result holds beyond fake data, they need a second source: **a simulator, with data whose timing can be
+trusted.** That is you.
+
+Your chain, from left to right:
+
+```
+racing game  ->  reader  ->  ROS 2  ->  pipeline (store, check, replay)  ->  lap files for Group 2
+(3 games)       (task 3)    (task 5)         (task 6)                          (task 7)
+                                |
+                                +-->  dashboard on the second PC (task 9)  and  local AI model (task 10)
+```
+
+## Your twelve tasks in plain words
+
+1. **Onboarding.** Learn the plan; run the mock data stream.
+2. **Rig bring-up and setup guide.** Set up the delivered rig; keep this guide correct.
+3. **Game readers and game comparison.** Read data from rFactor 2, Assetto Corsa and iRacing. Test all three
+   and recommend which to use for the test sessions. Luke gives you his existing reader code to start from.
+4. **Clocks and timestamps.** Measure how far the clocks of the three machines disagree.
+5. **Data flow with ROS 2.** Move the data between machines; record and replay it.
+6. **Data pipeline.** Store every session in one layout, check its quality, cut it into laps, replay it.
+7. **Lap files and labelled sessions.** Convert sessions for Group 2's checker; drive 10 labelled test sessions.
+8. **Different setups and the delay model.** Measure delay in at least three setups; build a simulation of it.
+9. **Dashboard on the evaluation PC.** Show live and replayed sessions on the second monitor.
+10. **Local AI: choosing and testing models.** Compare at least three local models; pick one.
+11. **Cameras, raw inputs and heart rate.** A later stage: record and align further sources.
+12. **Meetings, report and final talk.**
+
+## Terms explained
+
+**The data**
+- **Telemetry:** measurements recorded while driving: speed, throttle, brake, steering, position.
+- **Sample:** one set of telemetry values at one moment. At 60 samples a second, a lap is thousands of samples.
+- **Timestamp:** the time written next to a sample. In this project every sample carries **two**: the **source
+  time** (when the game produced it) and the **receive time** (when your recorder got it). They are on
+  different clocks, so never merge them into one number.
+- **Delay (latency):** how late data arrives. **Jitter:** how much that delay varies. **Lost data (packet loss):**
+  samples that never arrive.
+- **Clock offset and drift:** how far two machines' clocks disagree, and how that grows over time.
+- **Lap file:** a text file in the layout of a GPS data logger (`.vbo`) that Group 2's checker reads.
+- **Pipeline:** the steps that take a raw recording to a checked, stored, replayable session.
+- **Dashboard:** a live display of data on a screen.
+
+**ROS and friends**
+- **ROS** stands for **Robot Operating System**. Despite the name it is not an operating system: it is a free
+  toolkit for passing messages between programs, which can run on different machines. **ROS 2** is its second
+  generation, and **Jazzy** (full name Jazzy Jalisco) is the release we use.
+- A **node** is a program that takes part. A **topic** is a named channel, for example `/telemetry`. A node
+  *publishes* messages to a topic and other nodes *subscribe* to it. A **message** is one piece of data with a
+  fixed layout. A **bag** is a recording of messages that can be replayed with its original timing.
+
+**How games hand over data**
+- **Shared memory:** a block of the computer's memory that a game writes and other programs on the same
+  machine can read. **Plugin:** an add-on that a game loads. **SDK** (software development kit): the toolbox a
+  maker provides for programmers.
+- **UDP:** a simple way of sending small messages over a network without checking that each one arrives. Fast,
+  but data can be lost.
+- **Canned buffers:** saved raw data from a game, used to test a reader without running the game.
+- **Mock:** a stand-in data source used before the real one exists.
+
+**Time**
+- **NTP** (Network Time Protocol) keeps clocks in step over a network. **chrony** does this on Linux and
+  **w32tm** on Windows.
+- **SimPy:** a Python library for simulating events over time. We use it to model delays.
+
+**The machines and the AI part**
+- **AI machine:** the separate ASUS computer for running AI models. It has an NVIDIA GB10 chip and runs Linux on
+  an **arm64** processor, a processor design that differs from a normal PC, so software needs arm64 builds.
+- **GPU:** a graphics processor; it runs AI models fast. **Local AI model:** a language model that runs on our
+  own machine instead of a cloud service. **Inference:** running the model to get an answer.
+- **UPS:** uninterruptible power supply, a battery that lets the rig shut down cleanly.
+- **BLE** (Bluetooth Low Energy) is how the Polar H10 chest strap talks. **GATT** is BLE's way of organising data
+  into services. **ECG** is the heart's electrical trace; **RR intervals** are the times between heartbeats.
+
+**Tools**
+- **uv** creates the Python environment; **pytest** runs the tests; **Docker** runs software in a container.
+- **Fork, branch, pull request:** your own copy of a repository; a line of work in it; a request to merge it
+  back. See [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
 ---
 
 ## 1. What you are setting up
+
+This table lists everything in the rig, what it is, and what it does in our project. The prices and offers are in the proposal the hardware was bought from; here we only need to know what each part is for.
 
 | machine / part | what it is | role |
 |---|---|---|
@@ -65,6 +157,8 @@ offers. **Details not known until delivery** (fill in during task 2):
   (task 4), and record both timestamps in every sample (`source_t`, `receive_t`, see
   [simlab/records.py](simlab/records.py)). Never overwrite one with the other.
 
+Fill in this table once the addresses are fixed. Everyone who touches the network then knows where each machine is.
+
 | machine | address | OS | role |
 |---|---|---|---|
 | sim PC | | | |
@@ -88,7 +182,7 @@ Everything here runs on your laptops.
    publish the mock stream on a topic.
 3. Measure the clock offset between two of your laptops with `chrony` or `w32tm`
    (phase 5). You are developing the method for task 4 now, so the real measurement is quick.
-4. Read the sim telemetry interfaces (phases 3.1 to 3.3). Do not write against them yet:
+4. Read the sim telemetry interfaces (sections 6.1 to 6.3). Do not write against them yet:
    without the sims running you cannot tell whether you read them right.
 5. Prepare the checklists in section 14 as files you will tick on the day.
 
@@ -150,7 +244,7 @@ must say so. If the rig arrives, they are driven on it.
 For each sim, finish with the same acceptance test: **drive 10 laps, record, and read the
 file back**. Measure and write down the real update rate; do not assume it.
 
-### 3.1 rFactor 2 (plugin interface)
+### 6.1 rFactor 2 (plugin interface)
 
 rFactor 2 gets its telemetry from a shared-memory **plugin**.
 
@@ -168,7 +262,7 @@ rFactor 2 gets its telemetry from a shared-memory **plugin**.
    structures.
 6. Task 3 builds the recorder on top of this.
 
-### 3.2 Assetto Corsa
+### 6.2 Assetto Corsa
 
 Assetto Corsa publishes telemetry through memory-mapped files, no plugin required: three
 blocks named `acpmf_physics`, `acpmf_graphics` and `acpmf_static`. Read them from Python with
@@ -176,22 +270,50 @@ blocks named `acpmf_physics`, `acpmf_graphics` and `acpmf_static`. Read them fro
 `docs/SOURCES.md`; check any third-party reader library's licence before you use it. Remember:
 **not the Microsoft Store Python**.
 
-### 3.3 iRacing
+### 6.3 iRacing
 
 iRacing exports telemetry through a memory-mapped file called `Local\IRSDKMemMapFileName`, with
 a header that states the data version and the update rate (usually 60 Hz) and a tick counter. The
 Python library `pyirsdk` reads it (`pip install pyirsdk`). iRacing must be running with a car on
 track. Telemetry is only available while you drive.
 
-### Sim comparison table (task 3 fills this in)
+### 6.4 Luke's reader code
+
+Luke has existing code that reads data from the games (for example a reader for Assetto Corsa's UDP
+interface) and hands it to you at the start of task 3. Use it as the starting point: run it, read it, fix it,
+extend it, and add the tests. Until the hand-over, work from the documentation of each game.
+
+Assetto Corsa also has a **UDP remote-telemetry interface** that works across the network; the documentation
+states a rate of about 333 packets a second. Measure it: do not assume it.
+
+### 6.5 Comparing the three games (task 3)
+
+Which game or games will we use for the labelled test sessions? That is **to be decided, and you decide it
+with data**. Test all three the same way, then recommend, and agree the choice with Luke at a direction call.
+
+**How to test.** For each game, use the same kind of car (a GT-style car) and a track that exists in all
+three. Drive 10 laps without stopping and record them with the reader. Then:
+
+1. Work out the **real update rate**: the median time between samples, and the longest gap.
+2. List the **fields you can read** (speed, throttle, brake, steering, position, lap number, others) with units.
+3. Check **stability**: gaps, frozen values, jumps, values that stay at zero.
+4. Check whether the game must be **in the foreground**, and whether the reader survives a pause or restart.
+5. Count the **effort to set up** (hours, steps, extra software).
+6. Note **cost and account needs**, and the choice of cars and tracks.
+
+**Write the results in this table** (the "Sim comparison" table; copy it into `docs/game-comparison.md`):
 
 | | rFactor 2 | Assetto Corsa | iRacing |
 |---|---|---|---|
-| interface | plugin, shared memory | shared memory | shared memory (SDK) |
-| stated update rate | | | ~60 Hz (header) |
-| measured update rate | | | |
-| fields we need and their units | | | |
-| needs the sim in the foreground? | | | |
+| how the data comes out | plugin and shared memory | shared memory, or UDP | shared memory (SDK) |
+| stated update rate | | about 333 per second (UDP, documented) | about 60 per second (header) |
+| measured update rate (median, longest gap) | | | |
+| fields we need, with units | | | |
+| stable over 10 laps? | | | |
+| must be in the foreground? | | | |
+| effort to set up (hours) | | | |
+| cost and account | | | |
+| recommended for the test sessions? | | | |
 
 ## 7. Phase 4: wheel, pedals, shaker
 

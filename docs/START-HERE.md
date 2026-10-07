@@ -48,8 +48,9 @@ every week, a pull request to me every Friday, a call with me every second week.
 
 ## Before the first weekly meeting
 
-12. Squad 1: for each of the three simulators, write down what you expect to read and at what rate,
-    as a hypothesis. Task 3 will test it.
+12. Squad 1: for each of the three games (rFactor 2, Assetto Corsa, iRacing), write down what you expect to
+    read and at what rate, and which game you expect to recommend, as a hypothesis. Task 3 tests it. Luke
+    hands over his reader code for the games at the start of that task.
 13. Everyone: five questions for Group 2 about the lap format ([INTERFACE.md](INTERFACE.md)). Group 2's
     squad 2 is drafting the contract with you.
 14. Luke needs from you: the list of accounts and licences the rig needs and who will own them.
