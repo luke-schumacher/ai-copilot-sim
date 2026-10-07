@@ -171,7 +171,7 @@ Fill in this table once the addresses are fixed. Everyone who touches the networ
 
 Everything here runs on your laptops.
 
-1. One person per group forks this repository on the FH Aachen GitLab (https://git.fh-aachen.de/ls9392e/ai-copilot-sim; sign in with your FH account, no invitation needed) and invites the group to the fork (Manage, Members); everyone clones the fork, and also clones `ai-copilot-lab` (https://git.fh-aachen.de/ls9392e/ai-copilot-lab) next to it. Then (this is real work, not waiting: see 3b):
+1. One person per group forks this repository on the FH Aachen GitLab (https://git.fh-aachen.de/ls9392e/ai-copilot-sim; sign in with your FH account; Luke gives you read access, or click Request access) and invites the group to the fork (Manage, Members); everyone clones the fork, and also clones `ai-copilot-lab` (https://git.fh-aachen.de/ls9392e/ai-copilot-lab) next to it. Then (this is real work, not waiting: see 3b):
    ```bash
    git clone <this repo> && git clone <ai-copilot-lab>
    cd ai-copilot-sim
