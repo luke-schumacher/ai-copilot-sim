@@ -2,28 +2,51 @@
 
 Period: 7–16 October 2026 · Submission: 16 October 2026
 
+## Important information for Luke
+- Because the communication in the first week was a bit off, we decided that it would be a better idea to perform the week-01-Group1.md as a group and not as single Files per person. 
+- If its needed we will commit a week-01-Group1-StudentName for everyone from Group1 if needed.
+- We will improve in the next week, there were many unexpectet circumstances and we need to step up our communication. 
+
 ## Done
 
-- **Task 1, onboarding:** Fork cloned, `simlab` and `claimcheck` installed, all 9 tests pass. The mock stream runs (`python -m simlab.mock_source out.jsonl`, 2265 samples) and the JSONL was checked. In the mock stream `source_t` and `receive_t` are identical, because nothing delays or re-stamps the samples on one machine. They will differ once data crosses machines, so both stay separate fields.
+- **Task 1, onboarding:** Fork cloned, `simlab` and `claimcheck` installed, all 9 tests pass. The mock stream runs (`python -m simlab.mock_source out.jsonl`, 2265 samples at 10 Hz) and the JSONL was checked. In the mock stream `source_t` and `receive_t` are identical, because nothing delays or re-stamps the samples on one machine. They will differ once data crosses machines, so both stay separate fields.
 - **Task 3, game interfaces (preparation, no code yet):** Researched the telemetry interfaces of rFactor 2, Assetto Corsa and iRacing and prepared a preliminary comparison (below). It is a hypothesis; task 3 tests it with real recordings.
 - **Task 4, clocks:** Method: `w32tm /stripchart /computer:time.windows.com /samples:10 /period:2 /dataonly` on both laptops, same network, within about one minute. Against the server, laptop A is at −512.8 ms (range 0.91 ms) and laptop B at +718.4 ms (range 1.46 ms). Relative offset between the laptops: about 1.231 s. Uncertainty: ±1.2 ms (sum of the two half-ranges). This covers sample scatter only, not Wi-Fi delay asymmetry or error of the reference server, so the real error is larger. Drift was not measured in this run.
-- **Task 5, ROS 2:** ROS 2 Jazzy in Docker. A Python publisher reads `out.jsonl` and publishes each line as `std_msgs/msg/String` on `/mock_stream`. Recorded with `ros2 bag record` (MCAP), replayed with `ros2 bag play`. `ros2 topic echo` shows the replayed JSON with `source_t` and `receive_t` intact.
-- **Task 6, pipeline** Store → Check → Cut into laps → Replay. A stored session is one folder with: the samples (source_t and receive_t), meta.json (simulator, car, track, driver, scenario card, clock offset, software versions) and a quality report (gaps, jumps, impossible values, duplicates, time running backwards).
+- **Task 5, ROS 2:** Two independent runs with ROS 2 Jazzy in Docker. In both, a Python publisher sends each line of `out.jsonl` as `std_msgs/msg/String` and the stream is recorded with `ros2 bag record` and replayed with `ros2 bag play`.
+  - Run A (topic `/mock_stream`, MCAP): the replayed JSON keeps `source_t` and `receive_t`. The bag held 2258 of 2265 messages.
+  - Run B (topic `/telemetry`, image `ros:jazzy`, replayed and re-recorded): all 2265 samples arrived, content identical including `source_t` and `receive_t`. Spacing against `source_t`: p95 0.18 ms (record) and 0.25 ms (replay), max 5 ms. Replay follows the recorder's receive time, not `source_t`. One laptop, no real network.
+- **Task 6, pipeline (sketch on paper):** recording → store → check → cut into laps → replay / lap files. A stored session is one folder with the samples (with `source_t` and `receive_t`), `meta.json` (driver code, simulator, clock offset with uncertainty, software versions, driving card), the laps and a quality report (gaps, jumps, impossible values, duplicates, time running backwards). Nothing is repaired silently.
 - **Task 8, delay model (`python -m simlab.latency`):**
 
-  | run | baseline median / p95 | lossy link delivered | slow processing median / p95 |
-  |---|---|---|---|
-  | unchanged | 8.2 / 11.3 ms | 953/1000 | 1689.2 / 3187.7 ms |
-  | processing delay 3 → 1 ms | 6.2 / 9.3 ms | 953/1000 | 1689.2 / 3187.7 ms |
-  | processing jitter 1 → 10 ms | 17.1 / 59.9 ms | 950/1000 | 1689.2 / 3187.7 ms |
+  | run | baseline median / p95 | lossy link delivered |
+  |---|---|---|
+  | unchanged | 8.2 / 11.3 ms | 953/1000 |
+  | processing delay 3 → 1 ms | 6.2 / 9.3 ms | 953/1000 |
+  | processing jitter 1 → 10 ms | 17.1 / 59.9 ms | 950/1000 |
 
-  Lowering the delay by 2 ms lowers median and p95 by exactly 2 ms. More jitter hurts the tail much more than the median (p95 about 6×, median about 3×). The "slow processing" column does not change in these runs because that scenario uses its own processing time (20 ms).
+  Lowering the delay by 2 ms lowers median and p95 by exactly 2 ms. More jitter hurts the tail much more than the median (p95 about 6×, median about 3×).
 
-  In the slow-processing scenario itself, we changed the processing time from 20 ms to 10 ms: median 1689.2 → 14.2 ms, p95 3187.7 → 16.8 ms. At 60 Hz a new sample arrives about every 16.67 ms. With 20 ms of processing the system cannot keep up and a queue builds up; with 10 ms it keeps up. These values come from the simulation, not from real hardware.
-**Task 10, local AI:** Ollama with llama3.2 (3.2B parameters, Q4_K_M) on a laptop ([CPU], [RAM], [GPU yes/no]). While answering: about 2.5 GB RAM and 42 % CPU; afterwards CPU about 0 %, RAM stays at 25 GB (model stays loaded). Measured: first run after idle (cold) total 21.8 s, of which prompt reading 20.9 s (model loading), eval rate 177 tokens/s. Warm follow-up question: total 1.7 s, first word after about 0.17 s, eval rate 189 tokens/s. First quality check: the model read "turn into a test" as an exam quiz instead of a structured test, so the prompt needs a fixed output format (e.g. JSON).
-Processor: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz
-RAM: 32 GB
-GPU: NVIDIA GeForce RTX3080 
+  The "slow processing" scenario uses its own processing time and does not change in the runs above. Changing it directly:
+
+  | processing time | median latency |
+  |---|---|
+  | 20 ms (original) | 1689.2 ms (p95 3187.7 ms) |
+  | 17 ms | 191 ms |
+  | 15 ms | 19.4 ms |
+  | 10 ms | 14.2 ms (p95 16.8 ms) |
+
+  The latency flips at the sample period: at 60 Hz a new sample arrives every 16.7 ms, so above that the queue grows. At Assetto Corsa's roughly 333 Hz (period about 3 ms), the baseline processing (about 4 ms mean) would already queue. These values come from the simulation, not from real hardware.
+- **Task 10, local AI:** Ollama with llama3.2 (3.2B parameters, Q4_K_M) on two machines.
+
+  | | machine 1 | machine 2 |
+  |---|---|---|
+  | hardware | Core i9-9900K, 32 GB RAM, RTX 3080 | Core Ultra 7 155H, 16 GB RAM, CPU only |
+  | memory | about 2.5 GB | 2.6 GB |
+  | speed (eval rate) | 177–189 tokens/s | about 17 tokens/s |
+  | first word, cold start | about 21 s | about 5 s |
+  | first word, warm | about 0.17 s | about 0.06 s |
+
+  Quality: the answers invent details and have no fixed format. On the instruction "turn this into a test" the model wrote an exam quiz instead of a structured test, so the prompt needs a fixed output format (for example JSON).
 
 ## Game comparison (hypothesis for task 3)
 
@@ -34,11 +57,18 @@ GPU: NVIDIA GeForce RTX3080
 
 Assetto Corsa looks like a good first candidate: no extra plugin is needed and Luke already has a UDP reader. The documented rates are not measured; task 3 measures the real ones.
 
+## Licences the rig needs (for Luke)
+
+rFactor 2 (Steam, with extra cars and tracks), Assetto Corsa Ultimate Edition (Steam, base game plus 12 car/track packs), iRacing (24-month membership), configuration software for the Simagic wheel base and pedals. Owner of the Steam and iRacing accounts: open, Luke clarifies.
+
 ## Unclear points in the setup guide
 
-1. **Clock synchronization:** Will the AI machine be the time server, and how accurately do the three computers need to be synchronized?
-2. **Game readers:** When does Luke hand over his reader code? Is there sample data to test the readers without running the games?
-3. **Clock synchronization:** What is the maximum acceptable clock offset between the three computers during a recording?
+1. Cloning needs a personal access token (FH Login, so the password is rejected): a token with `read_repository` and `write_repository`. This is not in section 3.
+2. The fork is called `Sim-Fork-GR1`, so `git clone` creates that folder, but the README assumes `cd ai-copilot-sim`.
+3. Section 3, step 4 says not to write against the sim interfaces yet, but section 3b says to write the reader now on canned buffers. Which applies?
+4. Clock synchronization: will the AI machine be the time server, and how accurately do the three computers need to be synchronized?
+5. Game readers: when does Luke hand over his reader code? Is there sample data to test the readers without running the games?
+6. What is the maximum acceptable clock offset between the three computers during a recording?
 
 ## Five questions for Group 2
 
@@ -47,10 +77,6 @@ Assetto Corsa looks like a good first candidate: no extra plugin is needed and L
 3. **Timestamps:** How should `source_t` and `receive_t` be included in the `.vbo` format?
 4. **Lap detection:** Should we use the simulator's lap information or detect crossings using the `[laptiming]` section?
 5. **Sampling rate:** Which sampling rates should the claim checker support, and how should missing samples be handled?
-
-## List of accounts and Licences 
-- Licences the rig needs: rFactor 2 (Steam, with extra cars and tracks), Assetto Corsa Ultimate Edition (Steam, base game plus 12 car/track packs), iRacing (24-month membership), configuration software for the Simagic wheel base and pedals. 
-- Owner of the Steam and iRacing accounts: open, Luke clarifies.
 
 ## Blocked / decisions needed
 
@@ -68,12 +94,14 @@ Assetto Corsa looks like a good first candidate: no extra plugin is needed and L
 
 ## Open points
 
-- The bag holds 2258 messages, the source file 2265 lines. Find out why 7 are missing (start or stop of the recording?) and record again.
-- Not yet checked: replay with the original timing, and whether the bag timestamps match `source_t`.
+- One recording held 2258 of 2265 messages, the other all 2265. Find out why (start or stop of the recording?).
+- Decide which timestamp replay should follow: the recorder's receive time (current behaviour) or `source_t`.
 - Clocks: repeat after 30–60 minutes to get the drift.
-- Local AI: add model tag, laptop specification, and measured speed (`ollama run <model> --verbose`: eval rate, load duration).
+- Local AI: the gap of 177 versus 17 tokens/s is probably GPU (RTX 3080) versus CPU only. Confirm with `ollama ps` (column PROCESSOR).
 - rFactor 2 rate (about 50 Hz): add the source to `docs/SOURCES.md`.
+- Helper scripts (ROS 2 publisher and analysis) are not committed yet.
+- Format of the weekly notes: check against `notes/WEEK-TEMPLATE.md`.
 
 ## Hours this week
 
-- Personal working time: **10 hours p.p.**
+- Personal working time: **10 hours per person**
