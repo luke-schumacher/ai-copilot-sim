@@ -7,7 +7,7 @@ someone else's code. Add rows as you go.
 |---|---|---|---|---|
 | rFactor 2 shared-memory plugin (TheIronWolf) | github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin | | | reading rFactor 2 (task 3) |
 | pyirsdk | github.com/kutu/pyirsdk | | | reading iRacing (task 3) |
-| Assetto Corsa shared-memory or UDP reference | | | | reading Assetto Corsa (task 3) |
-| ROS 2 Jazzy installation guide | docs.ros.org | | | task 5 |
+| Assetto Corsa shared-memory reference | https://www.assettocorsamods.net/threads/doc-shared-memory-reference.58/ | updated 2016-04-25 | | reading Assetto Corsa (task 3) |
+| Assetto Corsa UDP telemetry protocol | https://docs.assetto.cn/en/networking/udp-remote-telemetry.html | original 2014 protocol | | reading Assetto Corsa (task 3) || ROS 2 Jazzy installation guide | docs.ros.org | | | task 5 |
 | DGX OS 7 user guide | docs.nvidia.com | | | AI machine (task 10) |
 | Polar BLE SDK | github.com/polarofficial/polar-ble-sdk | | | heart rate (task 11) |
