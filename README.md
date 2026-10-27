@@ -17,6 +17,7 @@ Where to go next:
 - **The hardware, with specifications:** [docs/HARDWARE.md](docs/HARDWARE.md)
 - **How we work:** [docs/WORKFLOW.md](docs/WORKFLOW.md)
 - **The rule about data:** [docs/DATA-RULE.md](docs/DATA-RULE.md)
+- **Record Assetto Corsa yourself (reader code for task 3):** [docs/RECORDER.md](docs/RECORDER.md)
 
 **The rig is not here yet.** Delivery is mid-November at the very earliest, and probably later. That is why
 most of this guide, and most of your work until December, is built and tested **without** the rig, against
@@ -179,6 +180,7 @@ Everything here runs on your laptops.
    uv run pytest
    uv run python -m simlab.mock_source out.jsonl      # a synthetic session as a stream of samples
    uv run python -m simlab.latency                    # the latency skeleton, three configurations
+   uv run python -m simlab.ac_recorder                # record Assetto Corsa; page at http://localhost:8765
    ```
 2. Install **ROS 2 Jazzy** (see phase 6) in a container or an Ubuntu 24.04 machine and
    publish the mock stream on a topic.
